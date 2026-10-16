@@ -1,71 +1,33 @@
-# Paid Agent APIs — Storefront Grader & GEO Audit
+# Paid Agent APIs
 
-Two pay-per-call APIs built for AI agents. No accounts, no API keys, no subscriptions —
-**payment is the auth**. Each call is paywalled with the
-[x402 protocol](https://www.x402.org): send a request, get an HTTP 402 with payment
-requirements, pay in USDC on Base, get the result.
+**Pay-per-call MCP APIs for AI agents.** Every call is settled in USDC via the
+[x402 protocol](https://www.x402.org) on Base — no accounts, no API keys, no
+subscriptions. **Payment is the auth:** your agent pays per call and gets the result.
 
 Operated by Harrison Truong · Contact: **theharrisontruong@gmail.com**
 
 ---
 
-## 1. AI Storefront Readiness Grader — $1.00 / call
+## Products
 
-Grades any storefront URL **A–F** across 20 weighted conversion-readiness checks
-(checkout friction, trust signals, mobile readiness, page performance basics,
-merchandising completeness, and more) and returns the grade plus the failing checks.
+| Service | What it does | MCP tool | Price | Status |
+|---|---|---|---|---|
+| **AI Storefront Readiness Grader** | Grades any storefront URL A–F across 20 weighted conversion-readiness checks (checkout friction, trust signals, mobile readiness, merchandising completeness) and returns the failing checks | `grade_storefront` | **$1.00 / call** | ✅ **LIVE** |
+| **GEO Audit** | Scores any URL's visibility to AI search engines (ChatGPT, Perplexity, Claude, Google AI Overviews) across 20 weighted checks and returns concrete fixes. Free tier: `audit_geo_lite`, rate-limited | `audit_geo` | **$1.50 / call** | ✅ **LIVE** |
+| **A11y Audit** | Accessibility lawsuit-risk scan: 20 weighted WCAG checks plus a lawsuit-risk level, framed as risk reduction for US businesses. Automated triage, not a certification | `audit_a11y` | **$1.50 / call** | Code complete — deploys with the next release |
+| **Feed Audit** | Product-feed hygiene audit: flags the feed errors that get listings disapproved or suppressed before they cost sales | — | **$1.00 / call** | Code complete — deploys with the next release |
 
-| | |
-|---|---|
-| HTTP endpoint | `POST https://grader-al6bxcngia-ue.a.run.app/grade` |
-| MCP endpoint | `POST https://grader-al6bxcngia-ue.a.run.app/mcp` |
-| MCP tool | `grade_storefront` |
-| Input | `{ "url": "https://your-store.example" }` |
-| Price | **$1.00 per call** (USDC, Base mainnet) |
-| Directory listing | https://www.x402scan.com/server/47e39cb6-7143-4052-b4b1-4dac0e1a2b40 |
+### Live endpoints
 
-## 2. GEO Audit — $1.50 / call
+| Service | MCP endpoint | HTTP endpoint |
+|---|---|---|
+| Storefront Grader | `POST https://grader-al6bxcngia-ue.a.run.app/mcp` | `POST https://grader-al6bxcngia-ue.a.run.app/grade` |
+| GEO Audit | `POST https://geo-al6bxcngia-ue.a.run.app/mcp` | `POST https://geo-al6bxcngia-ue.a.run.app/geo` · free: `POST /geo-lite` |
 
-Scores any URL's visibility to AI search engines (ChatGPT, Perplexity, Claude, Google
-AI Overviews) across 20 weighted checks — crawlability for AI bots, structured data,
-content extractability, entity signals — and returns the score plus concrete fixes.
+Both take `{ "url": "https://your-site.example" }`. Source for every service lives in
+this repo (`grader/`, `geo/`, `a11y/`).
 
-| | |
-|---|---|
-| HTTP endpoint | `POST https://geo-al6bxcngia-ue.a.run.app/geo` |
-| MCP endpoint | `POST https://geo-al6bxcngia-ue.a.run.app/mcp` |
-| MCP tool | `audit_geo` |
-| Input | `{ "url": "https://your-site.example" }` |
-| Price | **$1.50 per call** (USDC, Base mainnet) |
-| Free tier | `POST https://geo-al6bxcngia-ue.a.run.app/geo-lite` — tool `audit_geo_lite`, free, rate-limited to 20/hour |
-
----
-
-## Payment terms (x402)
-
-- **Protocol:** x402 (HTTP 402 Payment Required), `exact` scheme
-- **Network:** Base mainnet (`eip155:8453`)
-- **Asset:** USDC (`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`)
-- **Pay to:** `0xd702C8A8Ee30F6950A2a663010d12FC195D5348e`
-- **Facilitator:** PayAI (`https://facilitator.payai.network`)
-- **Discovery:** both services serve a discovery document at `/.well-known/x402` and
-  declare the Bazaar discovery extension (`extensions.bazaar`) in their 402 responses.
-
-Any x402-aware client works out of the box (`@x402/fetch`, `x402` Python package, CDP
-or PayAI client wrappers). Unpaid requests receive a standard 402 challenge with the
-full payment requirements — no signup needed to inspect them:
-
-```bash
-curl -i -X POST https://grader-al6bxcngia-ue.a.run.app/grade \
-  -H 'Content-Type: application/json' \
-  -d '{"url": "https://example.com"}'
-# → HTTP 402 with payment requirements (1.00 USDC, Base mainnet)
-```
-
-## MCP usage
-
-Both services expose a stateless streamable-HTTP MCP endpoint at `/mcp` on their base
-URLs. Add either to any MCP client as a remote server:
+Add either live service to any MCP client as a remote server:
 
 ```json
 {
@@ -76,13 +38,50 @@ URLs. Add either to any MCP client as a remote server:
 }
 ```
 
-Tool calls return an in-protocol 402 until the client pays via x402; the free
-`audit_geo_lite` tool on the GEO server works without payment.
+---
+
+## For agents: how payment works
+
+1. Call the tool or endpoint without payment → you get an HTTP 402 with the full
+   payment requirements (amount, network, pay-to address).
+2. Pay in USDC on Base mainnet (`eip155:8453`) with any x402 client (`@x402/fetch`,
+   the `x402` Python package, CDP or PayAI wrappers) and retry with the payment proof.
+3. The call runs and returns the result. No signup, no key management, no invoice.
+
+**Discovery documents** (`/.well-known/x402`):
+
+- https://grader-al6bxcngia-ue.a.run.app/.well-known/x402
+- https://geo-al6bxcngia-ue.a.run.app/.well-known/x402
+
+Both services also declare the Bazaar discovery extension (`extensions.bazaar`) in
+their 402 responses, so catalog crawlers can index the paid routes from the 402 alone.
+
+Payment terms: x402 `exact` scheme · asset USDC
+(`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`) · pay to
+`0xd702C8A8Ee30F6950A2a663010d12FC195D5348e` · facilitator PayAI
+(`https://facilitator.payai.network`), with Coinbase CDP facilitator support built in.
+
+---
+
+## Listed on
+
+- **Official MCP Registry** —
+  [`io.github.theharrisontruong-web/storefront-grader`](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.theharrisontruong-web/storefront-grader) ·
+  [`io.github.theharrisontruong-web/geo-audit`](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.theharrisontruong-web/geo-audit)
+- **Glama** (both A-rated) —
+  [Storefront Grader](https://glama.ai/mcp/connectors/app.run.a.grader-al6bxcngia-ue/storefront-grader) ·
+  [GEO Audit](https://glama.ai/mcp/connectors/app.run.a.geo-al6bxcngia-ue/geo-audit)
+- **Smithery** — namespace `theharrisontruong`:
+  [storefront-grader](https://smithery.ai/servers/theharrisontruong/storefront-grader) ·
+  [geo-audit](https://smithery.ai/servers/theharrisontruong/geo-audit)
+- **x402scan** —
+  [Storefront Grader](https://www.x402scan.com/server/47e39cb6-7143-4052-b4b1-4dac0e1a2b40)
 
 ## Registry metadata in this repo
 
 - `server.json` — Official MCP Registry manifest for the Storefront Grader (remote).
 - `server-geo.json` — Official MCP Registry manifest for GEO Audit (remote).
+- `server-a11y.json` — Official MCP Registry manifest for A11y Audit (publishes on deploy).
 - `glama.json` — [Glama](https://glama.ai) maintainer claim for this repository.
 
 ## License
