@@ -1,0 +1,12 @@
+# Keep Cloud Build uploads small: the Dockerfile installs deps fresh from
+# requirements.txt, so local virtualenvs, caches, and tests never need uploading.
+.venv/
+__pycache__/
+.pytest_cache/
+tests/
+*.pyc
+.git/
+.gitignore
+.env
+fly.toml
+railway.json
