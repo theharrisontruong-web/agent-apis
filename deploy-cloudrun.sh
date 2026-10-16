@@ -85,6 +85,7 @@ build_and_deploy() {
 build_and_deploy "grader" "$HOME/workspace/agent-api/grader" '$1.00'
 build_and_deploy "geo"    "$HOME/workspace/agent-api/geo"    '$1.50'
 build_and_deploy "a11y"   "$HOME/workspace/agent-api/a11y"   '$1.50'
+build_and_deploy "feed"   "$HOME/workspace/agent-api/feed"   '$1.00'
 
 # Revoke the one-time deploy key: delete from IAM, shred local copy.
 if [[ -n "${SA_KEY_FILE:-}" && -f "$SA_KEY_FILE" ]]; then
@@ -96,4 +97,4 @@ if [[ -n "${SA_KEY_FILE:-}" && -f "$SA_KEY_FILE" ]]; then
   echo "key revoked and shredded"
 fi
 
-echo "DONE. grader: $(cat /tmp/grader.url)  geo: $(cat /tmp/geo.url)  a11y: $(cat /tmp/a11y.url)"
+echo "DONE. grader: $(cat /tmp/grader.url)  geo: $(cat /tmp/geo.url)  a11y: $(cat /tmp/a11y.url)  feed: $(cat /tmp/feed.url)"
