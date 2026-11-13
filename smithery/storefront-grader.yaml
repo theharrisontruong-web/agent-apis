@@ -1,0 +1,12 @@
+# Smithery config for Storefront Grader (remote, bring-your-own-hosting listing).
+# URL-based Smithery listings are published by the account owner at
+# https://smithery.ai/new (choose "URL") or via the Smithery CLI:
+#   npx @smithery/cli mcp publish "https://grader-al6bxcngia-ue.a.run.app/mcp" -n theharrisontruong/storefront-grader
+# This file documents the same connection in the classic smithery.yaml
+# format; Smithery reads connection metadata from the live endpoint.
+startCommand:
+  type: url
+  url: https://grader-al6bxcngia-ue.a.run.app/mcp
+  configSchema:
+    type: object
+    properties: {}
