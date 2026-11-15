@@ -39,6 +39,23 @@ content extractability, entity signals — and returns the score plus concrete f
 | Price | **$1.50 per call** (USDC, Base mainnet) |
 | Free tier | `POST https://geo-al6bxcngia-ue.a.run.app/geo-lite` — tool `audit_geo_lite`, free, rate-limited to 20/hour |
 
+## 3. Racket Check — $1.00 / call
+
+Checks a local service provider's website for racket signals — subscription /
+plan / membership pushes, minimum-visit or package requirements, contract
+lock-in language, and pricing transparency — and returns a fail-closed verdict
+(`CLEAN` / `PLAN_PUSH` / `RACKET` / `UNKNOWN`) with a 0–100 score and
+per-signal evidence snippets from the site's own pages.
+
+| | |
+|---|---|
+| HTTP endpoint | `POST https://racketcheck-al6bxcngia-ue.a.run.app/racket-check` |
+| MCP endpoint | `POST https://racketcheck-al6bxcngia-ue.a.run.app/mcp` |
+| MCP tool | `racket_check` |
+| Input | `{ "url": "https://service-provider.example" }` |
+| Price | **$1.00 per call** (USDC, Base mainnet) |
+| Free tier | `POST https://racketcheck-al6bxcngia-ue.a.run.app/racket-check-lite` — tool `racket_check_lite`, verdict + score only, free, rate-limited |
+
 ---
 
 ## Payment terms (x402)
@@ -47,7 +64,10 @@ content extractability, entity signals — and returns the score plus concrete f
 - **Network:** Base mainnet (`eip155:8453`)
 - **Asset:** USDC (`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`)
 - **Pay to:** `0xd702C8A8Ee30F6950A2a663010d12FC195D5348e`
-- **Facilitator:** PayAI (`https://facilitator.payai.network`)
+- **Facilitators (dual rail):** every 402 carries two accepts entries for the same
+  price — PayAI (`https://facilitator.payai.network`, default entry) and the
+  Coinbase CDP Facilitator (second entry, marked `extra.facilitator: "cdp"`).
+  Standard x402 clients pick an entry automatically; both pay the same wallet.
 - **Discovery:** both services serve a discovery document at `/.well-known/x402` and
   declare the Bazaar discovery extension (`extensions.bazaar`) in their 402 responses.
 
