@@ -52,8 +52,41 @@ DRY RUN COMPLETE — nothing was signed and nothing was paid.
 | `a11y` | A11y Audit (WCAG / ADA risk) | `POST https://a11y-al6bxcngia-ue.a.run.app/a11y` | `{"url": "..."}` | $1.50 |
 | `feed` | Product Feed Audit | `POST https://feed-al6bxcngia-ue.a.run.app/feed` | `{"url": "..."}` | $1.00 |
 
-All four settle in USDC on Base mainnet (`eip155:8453`) to
-`0xd702C8A8Ee30F6950A2a663010d12FC195D5348e` via the PayAI facilitator.
+All of these services settle in USDC on Base mainnet (`eip155:8453`) to
+`0xd702C8A8Ee30F6950A2a663010d12FC195D5348e`. Every 402 challenge carries
+**two** accepts entries for the same price, so your client can settle
+through whichever facilitator it prefers:
+
+## Two settlement rails: PayAI and Coinbase CDP
+
+| Accepts entry | Facilitator | How to spot it |
+|---|---|---|
+| Default entry | PayAI (`facilitator.payai.network`) | No `facilitator` marker in `extra` |
+| CDP entry | Coinbase CDP Facilitator | `extra.facilitator` is `"cdp"` |
+
+Both entries charge exactly the listed price and pay the same wallet;
+only the settlement route differs. Standard x402 clients
+(`@x402/fetch`, `x402-axios`, the Python client) pick an entry
+automatically — no code change is needed to use either rail. Settling
+through the CDP entry is also what makes these endpoints discoverable
+in the Coinbase Bazaar catalog once a payment lands.
+
+## Also available: Racket Check — $1.00 / call
+
+Checks a local service provider's website for racket signals —
+subscription / plan / membership pushes, minimum-visit or package
+requirements, contract lock-in language, and pricing transparency —
+and returns a fail-closed verdict (`CLEAN` / `PLAN_PUSH` / `RACKET` /
+`UNKNOWN`) with a 0–100 score and per-signal evidence.
+
+| | |
+|---|---|
+| HTTP endpoint | `POST https://racketcheck-al6bxcngia-ue.a.run.app/racket-check` |
+| Free tier | `POST https://racketcheck-al6bxcngia-ue.a.run.app/racket-check-lite` — verdict + score only, free, rate-limited |
+| MCP endpoint | `POST https://racketcheck-al6bxcngia-ue.a.run.app/mcp` |
+| MCP tools | `racket_check` (paid), `racket_check_lite` (free) |
+| Input | `{ "url": "https://service-provider.example" }` |
+| Price | **$1.00 per call** (USDC, Base mainnet, same dual PayAI + CDP rails) |
 
 ## How the payment works
 
